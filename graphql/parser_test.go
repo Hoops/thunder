@@ -190,6 +190,17 @@ func TestParseUnsupported(t *testing.T) {
 
 	_, err = Parse(`
 {
+	baz {
+		b(a: 1)
+		b(a: 2)
+	}
+}`, map[string]interface{}{})
+	if err == nil || err.Error() != "same alias with different args" {
+		t.Error("expected different args to fail", err)
+	}
+
+	_, err = Parse(`
+{
 	a: a
 	a: b
 }`, map[string]interface{}{})
@@ -204,6 +215,22 @@ func TestParseUnsupported(t *testing.T) {
 		a: b
 	}
 }`, map[string]interface{}{})
+	if err == nil || err.Error() != "same alias with different name" {
+		t.Error("expected different names in fragment to fail", err)
+	}
+
+	_, err = Parse(`
+	{
+		baz {
+			foo
+			x: b(a:3) {
+				foo
+			}
+			x: c(a:3) {
+				foo
+			}
+		}
+	}`, map[string]interface{}{})
 	if err == nil || err.Error() != "same alias with different name" {
 		t.Error("expected different names in fragment to fail", err)
 	}
